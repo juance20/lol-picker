@@ -138,13 +138,19 @@ def main(mode="restart"):
                     principal, secundario = inputs()
                     iniciar = True
                 case 2:                
-                    principal, secundario = select_preset()
-                    iniciar = True
+                    principal, secundario, id = select_preset()
+                    if id == -1:
+                        input("Presione ENTER para continuar")
+                    else:
+                        iniciar = True
                 case 3:
                     crear_preset()
                 case 4:
                     _, _, id = select_preset()
-                    delete_preset(id)
+                    if id != -1:
+                        delete_preset(id)
+                    else:
+                        input("Presione ENTER para continuar")
                 case 5:
                     print_presets()
                     input("Presione ENTER para continuar")

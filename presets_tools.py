@@ -18,7 +18,7 @@ def select_preset():
 
     if len(data) == 0:
         print("No hay presets")
-        return 1
+        return None, None, -1
     
     os.system("cls")
 
