@@ -2,6 +2,8 @@ import pyautogui
 import time
 import art
 import os
+import keyboard
+from presets_tools import *
 
 def click_accept_button():
     accept_button_location = None
@@ -9,8 +11,11 @@ def click_accept_button():
     print("Esperando partida...")
 
     while accept_button_location == None:
-        accept_button_location = pyautogui.locateOnScreen("./images/accept.png", confidence = 0.7)
-        time.sleep(1)
+        try:
+            accept_button_location = pyautogui.locateOnScreen("./images/accept.png", confidence = 0.7)
+            time.sleep(1)
+        except:
+            time.sleep(1)
     
     print("Partida encontrada!")
 
@@ -27,13 +32,19 @@ def select_champ(champ):
     champ_location = None
 
     while selecting == None:
-        selecting = pyautogui.locateOnScreen("./images/select.png", confidence = 0.7)
-        time.sleep(1)
+        try:
+            selecting = pyautogui.locateOnScreen("./images/select.png", confidence = 0.7)
+            time.sleep(1)
+        except:
+            time.sleep(1)
 
     pyautogui.moveTo(center[0],center[1], 0)
 
     while champ_location == None:
-        champ_location = pyautogui.locateOnScreen("./champs/" + champ + ".png", confidence = 0.7)
+        try:
+            champ_location = pyautogui.locateOnScreen("./champs/" + champ + ".png", confidence = 0.7)
+        except:
+            pass
         if champ_location == None:
             pyautogui.scroll(-100)
         time.sleep(1)
@@ -54,13 +65,19 @@ def ban_champ(champ):
     champ_location = None
 
     while selecting == None:
-        selecting = pyautogui.locateOnScreen("./images/ban.png", confidence = 0.7)
-        time.sleep(1)
+        try:
+            selecting = pyautogui.locateOnScreen("./images/ban.png", confidence = 0.7)
+            time.sleep(1)
+        except:
+            time.sleep(1)
 
     pyautogui.moveTo(center[0],center[1], 0)
 
     while champ_location == None:
-        champ_location = pyautogui.locateOnScreen("./champs/" + champ + ".png", confidence = 0.7)
+        try:
+            champ_location = pyautogui.locateOnScreen("./champs/" + champ + ".png", confidence = 0.7)
+        except:
+            pass
         if champ_location == None:
             pyautogui.scroll(-100)
         time.sleep(1)
@@ -77,13 +94,14 @@ def verify_pos():
     Adc = None
 
     while Top == None and Mid == None and Jgl == None and Sup == None and Adc == None:
-        
-        Top = pyautogui.locateOnScreen("./images/top.png", confidence = 0.9)
-        #Mid = pyautogui.locateOnScreen("./images/mid.png", confidence = 0.9)
-        #Jgl = pyautogui.locateOnScreen("./images/jgl.png", confidence = 0.9)
-        Sup = pyautogui.locateOnScreen("./images/sup.png", confidence = 0.9)
-        Adc = pyautogui.locateOnScreen("./images/adc.png", confidence = 0.9)
-
+        try:
+            Top = pyautogui.locateOnScreen("./images/top.png", confidence = 0.7)
+            #Mid = pyautogui.locateOnScreen("./images/mid.png", confidence = 0.7)
+            #Jgl = pyautogui.locateOnScreen("./images/jgl.png", confidence = 0.7)
+            Sup = pyautogui.locateOnScreen("./images/sup.png", confidence = 0.7)
+            Adc = pyautogui.locateOnScreen("./images/adc.png", confidence = 0.7)
+        except:
+            pass
         time.sleep(1)
     
     if Top != None:
@@ -101,34 +119,53 @@ def verify_pos():
     elif Adc != None:
         return "adc"
 
-os.system("cls")
+def main(mode="restart"):
+    if mode == "select":
+        iniciar = False
+        while not iniciar:
+            os.system("cls")
 
-print(art.text2art("Gordo LoL Time"))
+            print(art.text2art("Gordo LoL Time"))
 
-pos_1 = input("Ingresar posición principal: ").lower()
-champ_1 = input("Ingresar campeon principal: ").lower()
-ban_1 = input("Ingrese baneo principal: ").lower()
+            print("1. Ingresar datos")
+            print("2. Usar preset")
+            print("3. Crear preset")
+            print("4. Eliminar preset")
+            print("5. Mostrar presets")
 
-pos_2 = input("Ingresar posición secundaria: ").lower()
-champ_2 = input("Ingresar campeon secundario: ").lower()
-ban_2 = input("Ingrese baneo secundario: ").lower()
+            match int(input("Ingrese opción: ")):
+                case 1:
+                    principal, secundario = inputs()
+                    iniciar = True
+                case 2:                
+                    principal, secundario = select_preset()
+                    iniciar = True
+                case 3:
+                    crear_preset()
+                case 4:
+                    _, _, id = select_preset()
+                    delete_preset(id)
+                case 5:
+                    print_presets()
+                    input("Presione ENTER para continuar")
 
-principal = {"pos":pos_1, "champ":champ_1, "ban":ban_1}
-secundario = {"pos":pos_2, "champ":champ_2, "ban":ban_2}
+    click_accept_button()
 
-click_accept_button()
+    print("Buscando posición...")
+    pos = verify_pos()
+    print(f"Posición encontrada: {pos}")
 
-print("Buscando posición...")
-pos = verify_pos()
-print(f"Posición encontrada: {pos}")
+    if pos == principal["pos"]:
+        champ, ban = principal["champ"], principal["ban"]
+    else:
+        champ, ban = secundario["champ"], secundario["ban"]
 
-if pos == principal["pos"]:
-    champ, ban = principal["champ"], principal["ban"]
-else:
-    champ, ban = secundario["champ"], secundario["ban"]
+    print(f"Champ: {champ}")
+    print(f"Ban: {ban}")
 
-print(f"Champ: {champ}")
-print(f"Ban: {ban}")
+    ban_champ(ban)
+    select_champ(champ)
 
-ban_champ(ban)
-select_champ(champ)
+keyboard.add_hotkey("ctrl + j", main)
+
+main(mode="select")
